@@ -153,11 +153,11 @@ android {
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(File(projectDir, "proguard-rules.pro"))
 
-            the<CrashlyticsExtension>().nativeSymbolUploadEnabled = true
+            the<CrashlyticsExtension>().nativeSymbolUploadEnabled = false
         }
 
         getByName("debug") {
