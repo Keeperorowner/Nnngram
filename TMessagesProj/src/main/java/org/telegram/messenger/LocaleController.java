@@ -1467,7 +1467,7 @@ public class LocaleController {
         if (value.contains("TELEOFFICIAL"))
             value = value.replace("TELEOFFICIAL", "Telegram");
         if (value.contains("NullgramClient"))
-            value = value.replace("NullgramClient", "NnngramClient");
+            value = value.replace("NullgramClient", "Nnngram");
         if (value.contains("Nullgram"))
             value = value.replace("Nullgram", "Nnngram");
         return value;
