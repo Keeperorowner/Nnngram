@@ -55,6 +55,7 @@ public class ExperimentSettingActivity extends BaseActivity {
 
     private int experimentRow;
     private int disableFilteringRow;
+    private int ignoreChatStrictRow;
     private int blockSponsorAdsRow;
     private int hideProxySponsorChannelRow;
     private int disableSendTypingRow;
@@ -81,7 +82,6 @@ public class ExperimentSettingActivity extends BaseActivity {
     private int hidePremiumStickerAnimRow;
     private int fastSpeedUploadRow;
     private int modifyDownloadSpeedRow;
-    private int ignoreChatStrictRow;
     private int premium2Row;
     private int alwaysSendWithoutSoundRow;
 
