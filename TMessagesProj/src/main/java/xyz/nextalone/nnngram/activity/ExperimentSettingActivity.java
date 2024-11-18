@@ -114,7 +114,12 @@ public class ExperimentSettingActivity extends BaseActivity {
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(Config.disableSendTyping);
             }
-        } else if (position == disableFilteringRow) {
+        }else if (position == ignoreChatStrictRow) {
+            Config.toggleIgnoreChatStrict();
+            if (view instanceof TextCheckCell) {
+                ((TextCheckCell) view).setChecked(Config.ignoreChatStrict);
+            }
+        }else if (position == disableFilteringRow) {
             sensitiveEnabled = !sensitiveEnabled;
             TLRPC.TL_account_setContentSettings req = new TLRPC.TL_account_setContentSettings();
             req.sensitive_enabled = sensitiveEnabled;
@@ -217,11 +222,6 @@ public class ExperimentSettingActivity extends BaseActivity {
             if (view instanceof TextCheckCell) {
                 ((TextCheckCell) view).setChecked(Config.storyStealthMode);
             }
-        } else if (position == ignoreChatStrictRow) {
-            Config.toggleIgnoreChatStrict();
-            if (view instanceof TextCheckCell) {
-                ((TextCheckCell) view).setChecked(Config.ignoreChatStrict);
-            }
         } else if (position == enableXiaomiHyperAiRow) {
             Config.toggleEnableXiaomiHyperAi();
             if (view instanceof TextCheckCell) {
@@ -248,6 +248,7 @@ public class ExperimentSettingActivity extends BaseActivity {
 
         experimentRow = addRow();
         disableFilteringRow = sensitiveCanChange ? addRow("disableFiltering") : -1;
+        ignoreChatStrictRow = addRow("ignoreChatStrict");
         aliasChannelRow = addRow("aliasChannel");
         keepFormattingRow = addRow("keepFormatting");
         enchantAudioRow = addRow("enchantAudio");
@@ -287,7 +288,6 @@ public class ExperimentSettingActivity extends BaseActivity {
             fastSpeedUploadRow = addRow("fastSpeedUpload");
             modifyDownloadSpeedRow = addRow("modifyDownloadSpeed");
             premium2Row = addRow();
-            ignoreChatStrictRow = addRow("ignoreChatStrict");
         }
 
         if (listAdapter != null) {
