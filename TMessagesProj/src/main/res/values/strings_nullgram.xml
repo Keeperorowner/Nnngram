@@ -374,6 +374,7 @@
     <string name="MergeMessage">Merge message</string>
     <string name="filterZalgo">Filter \"Zalgo\" symbols</string>
     <string name="ignoreFolderUnreadCount">Ignore folder unread count</string>
+    <string name="ignoreChatStrict">Remove restrictions on strict chat</string>
     <string name="customTitle">Custom title</string>
     <string name="setCustomTitle">Set custom title</string>
     <string name="drawerList">Drawer list</string>

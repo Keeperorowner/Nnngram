@@ -55,6 +55,7 @@ public class ExperimentSettingActivity extends BaseActivity {
 
     private int experimentRow;
     private int disableFilteringRow;
+    private int ignoreChatStrictRow;
     private int blockSponsorAdsRow;
     private int hideProxySponsorChannelRow;
     private int disableSendTypingRow;
@@ -81,7 +82,6 @@ public class ExperimentSettingActivity extends BaseActivity {
     private int hidePremiumStickerAnimRow;
     private int fastSpeedUploadRow;
     private int modifyDownloadSpeedRow;
-    private int ignoreChatStrictRow;
     private int premium2Row;
     private int alwaysSendWithoutSoundRow;
 
@@ -248,6 +248,7 @@ public class ExperimentSettingActivity extends BaseActivity {
 
         experimentRow = addRow();
         disableFilteringRow = sensitiveCanChange ? addRow("disableFiltering") : -1;
+        ignoreChatStrictRow = addRow("ignoreChatStrict");
         aliasChannelRow = addRow("aliasChannel");
         keepFormattingRow = addRow("keepFormatting");
         enchantAudioRow = addRow("enchantAudio");
@@ -287,8 +288,7 @@ public class ExperimentSettingActivity extends BaseActivity {
             fastSpeedUploadRow = addRow("fastSpeedUpload");
             modifyDownloadSpeedRow = addRow("modifyDownloadSpeed");
             premium2Row = addRow();
-            ignoreChatStrictRow = addRow("ignoreChatStrict");
-        }
+            }
 
         if (listAdapter != null) {
             listAdapter.notifyDataSetChanged();
@@ -401,7 +401,7 @@ public class ExperimentSettingActivity extends BaseActivity {
                     } else if (position == enablePanguOnReceivingRow) {
                         textCell.setTextAndCheck(LocaleController.getString("enablePanguOnReceiving", R.string.enablePanguOnReceiving), Config.enablePanguOnReceiving, true);
                     } else if (position == ignoreChatStrictRow) {
-                        textCell.setTextAndCheck("", Config.ignoreChatStrict, true);
+                        textCell.setTextAndCheck(LocaleController.getString("ignoreChatStrict", R.string.ignoreChatStrict), Config.ignoreChatStrict, true);
                     } else if (position == enableXiaomiHyperAiRow) {
                         textCell.setTextAndCheck(LocaleController.getString(R.string.enableXiaomiHyperAi), Config.enableXiaomiHyperAi, true);
                     }
