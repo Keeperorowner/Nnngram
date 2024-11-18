@@ -248,6 +248,7 @@ public class ExperimentSettingActivity extends BaseActivity {
 
         experimentRow = addRow();
         disableFilteringRow = sensitiveCanChange ? addRow("disableFiltering") : -1;
+        ignoreChatStrictRow = addRow("ignoreChatStrict");
         aliasChannelRow = addRow("aliasChannel");
         keepFormattingRow = addRow("keepFormatting");
         enchantAudioRow = addRow("enchantAudio");
@@ -287,8 +288,7 @@ public class ExperimentSettingActivity extends BaseActivity {
             fastSpeedUploadRow = addRow("fastSpeedUpload");
             modifyDownloadSpeedRow = addRow("modifyDownloadSpeed");
             premium2Row = addRow();
-            ignoreChatStrictRow = addRow("ignoreChatStrict");
-        }
+            }
 
         if (listAdapter != null) {
             listAdapter.notifyDataSetChanged();
