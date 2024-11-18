@@ -401,7 +401,7 @@ public class ExperimentSettingActivity extends BaseActivity {
                     } else if (position == enablePanguOnReceivingRow) {
                         textCell.setTextAndCheck(LocaleController.getString("enablePanguOnReceiving", R.string.enablePanguOnReceiving), Config.enablePanguOnReceiving, true);
                     } else if (position == ignoreChatStrictRow) {
-                        textCell.setTextAndCheck("", Config.ignoreChatStrict, true);
+                        textCell.setTextAndCheck(ignoreChatStrict.getString(R.string.ignoreChatStrict), Config.ignoreChatStrict, true);
                     } else if (position == enableXiaomiHyperAiRow) {
                         textCell.setTextAndCheck(LocaleController.getString(R.string.enableXiaomiHyperAi), Config.enableXiaomiHyperAi, true);
                     }
