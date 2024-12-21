@@ -1,9 +1,6 @@
 //
 // Created by qwq233 on 2/24/2023.
 //
-
-#include "v2sign.h"
-
 #include <jni.h>
 #include <regex>
 #include <cstring>
@@ -13,8 +10,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
-
-#include <linux_syscall_support.h>
 
 #include <android/log.h>
 #include "../crashlytics.h"
@@ -32,10 +27,6 @@ extern "C" bool checkSignature(uint8_t result) {
     } else {
         firebase::crashlytics::SetCustomKey("signature", "verify failed");
         match = false;
-    }
-
-    if (!match) {
-        sys_kill(sys_getpid(), SIGKILL);
     }
     return match;
 }

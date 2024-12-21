@@ -309,10 +309,10 @@ public class FileUploadOperation {
 
                 long maxUploadParts = MessagesController.getInstance(currentAccount).uploadMaxFileParts;
                 if ((AccountInstance.getInstance(currentAccount).getUserConfig().isPremium() && totalFileSize > FileLoader.DEFAULT_MAX_FILE_SIZE)
-                    || Config.hidePremiumStickerAnim) {
+                    || Config.fastSpeedUpload) {
                     maxUploadParts = MessagesController.getInstance(currentAccount).uploadMaxFilePartsPremium;
                 }
-                uploadChunkSize = (int) Math.max(slowNetwork ? minUploadChunkSlowNetworkSize : Config.hidePremiumStickerAnim ? minUploadChunkSizeBoost :
+                uploadChunkSize = (int) Math.max(slowNetwork ? minUploadChunkSlowNetworkSize : Config.fastSpeedUpload ? minUploadChunkSizeBoost :
                         minUploadChunkSize,
                     (totalFileSize + 1024L * maxUploadParts - 1) / (1024L * maxUploadParts));
                 if (1024 % uploadChunkSize != 0) {
