@@ -21,14 +21,13 @@ package xyz.nextalone.nnngram.utils
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.BuildConfig
-import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.BuildVars
 import org.telegram.messenger.UserConfig
 import org.telegram.ui.LaunchActivity
 import java.io.File
@@ -39,6 +38,21 @@ import java.util.Locale
 
 object Log {
     const val TAG = "Nnngram"
+    private const val ENABLE_RC_LOG = false
+    private const val ENABLE_NATIVE_LOG = false
+    private const val MAX_LOG_FILE_SIZE = 1024 * 1024 * 10 // 10MB
+
+    // 日志控制
+    private val loggingEnabled: Boolean
+        get() = BuildVars.LOGS_ENABLED
+
+    private var minimumLogLevel = Level.DEBUG
+
+    enum class Level(val priority: Int) {
+        DEBUG(0), INFO(1), WARN(2), ERROR(3), FATAL(4)
+    }
+
+    // 日志文件
     private val logFile: File by lazy {
         File(AndroidUtilities.getLogsDir(), "log-${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.txt").also { f ->
             if (!f.exists()) {
@@ -54,20 +68,13 @@ object Log {
         appendText("Device: ${Build.MODEL}\n")
         appendText("Manufacturer: ${Build.MANUFACTURER}\n")
         appendText("OS: ${Build.VERSION.SDK_INT}\n")
-//        appendText("isPlay: ${BuildConfig.isPlay}\n")
         appendText("ABI: ${Utils.abi}\n")
-        for (i in 0 until  UserConfig.MAX_ACCOUNT_COUNT) {
+        for (i in 0 until UserConfig.MAX_ACCOUNT_COUNT) {
             UserConfig.getInstance(i)?.let {
                 if (!it.isClientActivated) return@let
                 appendText("User $i: ${it.getClientUserId()}\n")
             }
         }
-    }
-
-    private const val ENABLE_RC_LOG = false
-
-    enum class Level {
-        DEBUG, INFO, WARN, ERROR, FATAL
     }
 
     init {
@@ -81,22 +88,43 @@ object Log {
                     }
                 }
             }
-            if (BuildVars.LOGS_ENABLED){
-            logFile.appendText(">>>> Log start at ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}\n", Charset.forName("UTF-8"))
-            logFile.appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
+            if (loggingEnabled) {
+                logFile.appendText(">>>> Log start at ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}\n", Charset.forName("UTF-8"))
+                logFile.appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
             }
-
-
         }.onFailure {
             if (it is Exception && AndroidUtilities.isENOSPC(it)) {
                 LaunchActivity.checkFreeDiscSpaceStatic(1)
             }
-            Log.e(TAG, "Logger crashes", it)
+            e("Logger crashes", it)
         }
     }
 
+    private fun log(level: Level, tag: String?, msg: String, throwable: Throwable? = null) {
+        if (!loggingEnabled || level.priority < minimumLogLevel.priority) return
+        if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
+
+        val logMessage = if (tag != null) "$tag: $msg" else msg
+        when (level) {
+            Level.DEBUG -> android.util.Log.d(TAG, logMessage, throwable)
+            Level.INFO -> android.util.Log.i(TAG, logMessage, throwable)
+            Level.WARN -> {
+                android.util.Log.w(TAG, logMessage, throwable)
+                FirebaseCrashlytics.getInstance().log(logMessage)
+            }
+            Level.ERROR, Level.FATAL -> {
+                android.util.Log.e(TAG, logMessage, throwable)
+                FirebaseCrashlytics.getInstance().log(logMessage)
+                throwable?.let { AnalyticsUtils.trackCrashes(it) }
+            }
+        }
+
+        writeToFile(level, tag, msg)
+        throwable?.let { writeToFile(level, tag, it.stackTraceToString()) }
+    }
+
     private fun writeToFile(level: Level, tag: String?, msg: String) {
-        if (!BuildVars.LOGS_ENABLED) return
+        if (!loggingEnabled) return
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
                 logFile.apply {
@@ -106,9 +134,8 @@ object Log {
                         init()
                         appendText(">>>> Log start at ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}\n", Charset.forName("UTF-8"))
                         appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
-
                     }
-                    if (readAttributes().size() > 1024 * 1024 * 10) { // 10MB
+                    if (readAttributes().size() > MAX_LOG_FILE_SIZE) {
                         refreshLog()
                     }
                     appendText("${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())} ${level.name} ${tag ?: ""}: $msg\n", Charset.forName("UTF-8"))
@@ -120,6 +147,48 @@ object Log {
             }
         }
     }
+
+    @JvmStatic
+    fun d(tag: String, msg: String) = log(Level.DEBUG, tag, msg)
+
+    @JvmStatic
+    fun i(tag: String, msg: String) = log(Level.INFO, tag, msg)
+
+    @JvmStatic
+    fun w(tag: String, msg: String) = log(Level.WARN, tag, msg)
+
+    @JvmStatic
+    fun e(tag: String, msg: String) = log(Level.ERROR, tag, msg)
+
+    @JvmStatic
+    @JvmOverloads
+    fun d(msg: String, throwable: Throwable? = null) = log(Level.DEBUG, null, msg, throwable)
+
+    @JvmStatic
+    @JvmOverloads
+    fun i(msg: String, throwable: Throwable? = null) = log(Level.INFO, null, msg, throwable)
+
+    @JvmStatic
+    @JvmOverloads
+    fun w(msg: String, throwable: Throwable? = null) = log(Level.WARN, null, msg, throwable)
+
+    @JvmStatic
+    @JvmOverloads
+    fun e(msg: String, throwable: Throwable? = null) = log(Level.ERROR, null, msg, throwable)
+
+    @JvmStatic
+    fun w(throwable: Throwable) = log(Level.WARN, null, "", throwable)
+
+    @JvmStatic
+    fun e(throwable: Throwable) = log(Level.ERROR, null, "", throwable)
+
+    @JvmStatic
+    fun fatal(throwable: Throwable?) {
+        if (throwable != null) {
+            log(Level.FATAL, null, "", throwable)
+        }
+    }
+
     @JvmStatic
     fun shareLog(context: Context) {
         if (logFile.exists()) ShareUtil.shareFile(context, logFile)
@@ -140,144 +209,14 @@ object Log {
         }
     }
 
-    /**
-     * 日志等级 Debug
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    fun d(tag: String, msg: String) {
-        if (!BuildVars.LOGS_ENABLED) return
-        if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
-        Log.d(TAG, "$tag: $msg")
-        writeToFile(Level.DEBUG, tag, msg)
-    }
-
-    /**
-     * 日志等级 Info
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    fun i(tag: String, msg: String) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.i(TAG, "$tag: $msg")
-        writeToFile(Level.INFO, tag, msg)
-    }
-
-    /**
-     * 日志等级 Warn
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    fun w(tag: String, msg: String) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.w(TAG, "$tag: $msg")
-        writeToFile(Level.WARN, tag, msg)
-        FirebaseCrashlytics.getInstance().log("$tag: $msg")
-    }
-
-    /**
-     * 日志等级 Error
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    fun e(tag: String, msg: String) {
-        Log.e(TAG, "$tag: $msg")
-        if (BuildVars.LOGS_ENABLED) {
-        writeToFile(Level.ERROR, tag, msg)
-        }
-        FirebaseCrashlytics.getInstance().log("$tag: $msg")
-    }
-
-    /**
-     * 日志等级 Debug
-     * @param throwable 异常
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun d(msg: String, throwable: Throwable? = null) {
-        if (!BuildVars.LOGS_ENABLED) return
-        if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
-        Log.d(TAG, msg, throwable)
-        writeToFile(Level.DEBUG, null, msg)
-        if (throwable != null) writeToFile(Level.DEBUG, null, throwable.stackTraceToString())
-    }
-
-    /**
-     * 日志等级 Info
-     * @param throwable 异常
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun i(msg: String, throwable: Throwable? = null) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.i(TAG, msg, throwable)
-        writeToFile(Level.INFO, null, msg)
-        if (throwable != null) writeToFile(Level.INFO, null, throwable.stackTraceToString())
-    }
-
-    /**
-     * 日志等级 Warn
-     * @param throwable 异常
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun w(msg: String, throwable: Throwable? = null) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.w(TAG, msg, throwable)
-        writeToFile(Level.WARN, null, msg)
-        if (throwable != null) writeToFile(Level.WARN, null, throwable.stackTraceToString())
-    }
-
-    /**
-     * 日志等级 Error
-     * @param throwable 异常
-     * @param msg 日志内容
-     */
-    @JvmStatic
-    @JvmOverloads
-    fun e(msg: String, throwable: Throwable? = null) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.e(TAG, msg, throwable)
-        writeToFile(Level.ERROR, null, msg)
-        if (throwable != null) {
-            writeToFile(Level.ERROR, null, throwable.stackTraceToString())
-            AnalyticsUtils.trackCrashes(throwable)
-        }
-    }
-
-    @JvmStatic
-    fun fatal(throwable: Throwable?) {
-        if (!BuildVars.LOGS_ENABLED) return
-        if (throwable != null) {
-            writeToFile(Level.FATAL, null, throwable.stackTraceToString())
-            AnalyticsUtils.trackCrashes(throwable)
-        }
-    }
-
-    /**
-     * 触发一次崩溃
-     * 当throwable为null时，触发一个空指针异常
-     * 当throwable不为null时，触发throwable
-     *
-     * @param throwable 异常
-     */
+    // 崩溃相关方法
     @JvmStatic
     @JvmOverloads
     fun crash(throwable: Throwable? = null) {
-        if (!BuildVars.LOGS_ENABLED) return
-        if (throwable != null) {
-            throw throwable
-        } else {
-            throw NullPointerException("manual crash")
-        }
+        if (!loggingEnabled) return
+        throw throwable ?: NullPointerException("manual crash")
     }
 
-    /**
-     * DEBUG ONLY
-     */
     @JvmStatic
     fun throwException() = try {
         throw NullPointerException("manual crash")
@@ -285,36 +224,9 @@ object Log {
         w(e)
     }
 
-    /**
-     * 日志等级 Warn
-     * @param throwable 异常
-     */
-    @JvmStatic
-    fun w(throwable: Throwable) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.w(TAG, "", throwable)
-        writeToFile(Level.WARN, null, throwable.stackTraceToString())
-        AnalyticsUtils.trackCrashes(throwable)
-
-    }
-
-    /**
-     * 日志等级 Error
-     * @param throwable 异常
-     */
-    @JvmStatic
-    fun e(throwable: Throwable) {
-        if (!BuildVars.LOGS_ENABLED) return
-        Log.e(TAG, "", throwable)
-        writeToFile(Level.ERROR, null, throwable.stackTraceToString())
-        AnalyticsUtils.trackCrashes(throwable)
-    }
-
-    private const val ENABLE_NATIVE_LOG = false
-
     @JvmStatic
     fun nativeLog(level: Int, tag: String, msg: String) {
-        if (!BuildVars.LOGS_ENABLED||!ENABLE_NATIVE_LOG) return
+        if (!loggingEnabled || !ENABLE_NATIVE_LOG) return
         if (tag == "Nnngram") {
             when(level) {
                 0 -> d("tgnet", msg)
@@ -324,10 +236,16 @@ object Log {
             }
         }
         when(level) {
-            0 -> Log.d("tgnet", "$tag: $msg")
-            1 -> Log.i("tgnet", "$tag: $msg")
-            2 -> Log.w("tgnet", "$tag: $msg")
-            3 -> Log.e("tgnet", "$tag: $msg")
+            0 -> android.util.Log.d("tgnet", "$tag: $msg")
+            1 -> android.util.Log.i("tgnet", "$tag: $msg")
+            2 -> android.util.Log.w("tgnet", "$tag: $msg")
+            3 -> android.util.Log.e("tgnet", "$tag: $msg")
         }
+    }
+
+    // 日志级别控制
+    @JvmStatic
+    fun setMinimumLogLevel(level: Level) {
+        minimumLogLevel = level
     }
 }
