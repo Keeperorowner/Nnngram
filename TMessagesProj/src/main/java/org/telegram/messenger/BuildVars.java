@@ -25,10 +25,10 @@ import android.os.Build;
 
 public class BuildVars {
 
-    public static final boolean DEBUG_VERSION = true;
-    public static boolean DEBUG_PRIVATE_VERSION = true;
+    public static final boolean DEBUG_VERSION = false;
+    public static boolean DEBUG_PRIVATE_VERSION = false;
     public static boolean CHECK_UPDATES = true;
-    public static boolean LOGS_ENABLED = true;
+    public static boolean LOGS_ENABLED = false;
     public static boolean USE_CLOUD_STRINGS = true;
     public static boolean NO_SCOPED_STORAGE = Build.VERSION.SDK_INT <= 29;
     public static final int BUILD_VERSION = 5511;

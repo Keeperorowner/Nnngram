@@ -19,7 +19,7 @@
 #ifdef DEBUG_VERSION
 bool LOGS_ENABLED = true;
 #else
-bool LOGS_ENABLED = true;
+bool LOGS_ENABLED = false;
 #endif
 
 #include "../integrity/include/rust.h"

@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.BuildConfig
+import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.UserConfig
 import org.telegram.ui.LaunchActivity
 import java.io.File
@@ -80,8 +81,10 @@ object Log {
                     }
                 }
             }
+            if (BuildVars.LOGS_ENABLED){
             logFile.appendText(">>>> Log start at ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}\n", Charset.forName("UTF-8"))
             logFile.appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
+            }
 
 
         }.onFailure {
@@ -93,6 +96,7 @@ object Log {
     }
 
     private fun writeToFile(level: Level, tag: String?, msg: String) {
+        if (!BuildVars.LOGS_ENABLED) return
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
                 logFile.apply {
@@ -142,6 +146,7 @@ object Log {
      */
     @JvmStatic
     fun d(tag: String, msg: String) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
         Log.d(TAG, "$tag: $msg")
         writeToFile(Level.DEBUG, tag, msg)
@@ -153,6 +158,7 @@ object Log {
      */
     @JvmStatic
     fun i(tag: String, msg: String) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.i(TAG, "$tag: $msg")
         writeToFile(Level.INFO, tag, msg)
     }
@@ -163,6 +169,7 @@ object Log {
      */
     @JvmStatic
     fun w(tag: String, msg: String) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.w(TAG, "$tag: $msg")
         writeToFile(Level.WARN, tag, msg)
         FirebaseCrashlytics.getInstance().log("$tag: $msg")
@@ -175,7 +182,9 @@ object Log {
     @JvmStatic
     fun e(tag: String, msg: String) {
         Log.e(TAG, "$tag: $msg")
+        if (BuildVars.LOGS_ENABLED) {
         writeToFile(Level.ERROR, tag, msg)
+        }
         FirebaseCrashlytics.getInstance().log("$tag: $msg")
     }
 
@@ -187,6 +196,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun d(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
         Log.d(TAG, msg, throwable)
         writeToFile(Level.DEBUG, null, msg)
@@ -201,6 +211,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun i(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.i(TAG, msg, throwable)
         writeToFile(Level.INFO, null, msg)
         if (throwable != null) writeToFile(Level.INFO, null, throwable.stackTraceToString())
@@ -214,6 +225,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun w(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.w(TAG, msg, throwable)
         writeToFile(Level.WARN, null, msg)
         if (throwable != null) writeToFile(Level.WARN, null, throwable.stackTraceToString())
@@ -227,6 +239,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun e(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.e(TAG, msg, throwable)
         writeToFile(Level.ERROR, null, msg)
         if (throwable != null) {
@@ -237,6 +250,7 @@ object Log {
 
     @JvmStatic
     fun fatal(throwable: Throwable?) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (throwable != null) {
             writeToFile(Level.FATAL, null, throwable.stackTraceToString())
             AnalyticsUtils.trackCrashes(throwable)
@@ -253,6 +267,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun crash(throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (throwable != null) {
             throw throwable
         } else {
@@ -276,6 +291,7 @@ object Log {
      */
     @JvmStatic
     fun w(throwable: Throwable) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.w(TAG, "", throwable)
         writeToFile(Level.WARN, null, throwable.stackTraceToString())
         AnalyticsUtils.trackCrashes(throwable)
@@ -288,17 +304,18 @@ object Log {
      */
     @JvmStatic
     fun e(throwable: Throwable) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.e(TAG, "", throwable)
         writeToFile(Level.ERROR, null, throwable.stackTraceToString())
         AnalyticsUtils.trackCrashes(throwable)
     }
 
-    private const val ENABLE_NATIVE_LOG = true
+    private const val ENABLE_NATIVE_LOG = false
 
     @JvmStatic
     fun nativeLog(level: Int, tag: String, msg: String) {
-        if (!ENABLE_NATIVE_LOG) return
-        if (tag == "Nullgram") {
+        if (!BuildVars.LOGS_ENABLED||!ENABLE_NATIVE_LOG) return
+        if (tag == "Nnngram") {
             when(level) {
                 0 -> d("tgnet", msg)
                 1 -> i("tgnet", msg)
