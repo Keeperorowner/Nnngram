@@ -142,9 +142,12 @@ object Log {
      */
     @JvmStatic
     fun d(tag: String, msg: String) {
+        if (!ENABLE_LOGGING) return
         if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
         Log.d(TAG, "$tag: $msg")
+        if (LOGS_ENABLED) {
         writeToFile(Level.DEBUG, tag, msg)
+        }
     }
 
     /**
@@ -153,8 +156,11 @@ object Log {
      */
     @JvmStatic
     fun i(tag: String, msg: String) {
+        if (!ENABLE_LOGGING) return
         Log.i(TAG, "$tag: $msg")
+        if (LOGS_ENABLED) {
         writeToFile(Level.INFO, tag, msg)
+        }
     }
 
     /**
@@ -163,8 +169,11 @@ object Log {
      */
     @JvmStatic
     fun w(tag: String, msg: String) {
+        if (!ENABLE_LOGGING) return
         Log.w(TAG, "$tag: $msg")
+        if (LOGS_ENABLED) {
         writeToFile(Level.WARN, tag, msg)
+        }
         FirebaseCrashlytics.getInstance().log("$tag: $msg")
     }
 
@@ -175,7 +184,9 @@ object Log {
     @JvmStatic
     fun e(tag: String, msg: String) {
         Log.e(TAG, "$tag: $msg")
+        if (LOGS_ENABLED) {
         writeToFile(Level.ERROR, tag, msg)
+        }
         FirebaseCrashlytics.getInstance().log("$tag: $msg")
     }
 
@@ -297,8 +308,8 @@ object Log {
 
     @JvmStatic
     fun nativeLog(level: Int, tag: String, msg: String) {
-        if (!ENABLE_NATIVE_LOG) return
-        if (tag == "Nullgram") {
+        if (!LOGS_ENABLED||!ENABLE_NATIVE_LOG) return
+        if (tag == "Nnngram") {
             when(level) {
                 0 -> d("tgnet", msg)
                 1 -> i("tgnet", msg)
