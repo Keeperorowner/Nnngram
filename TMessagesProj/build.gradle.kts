@@ -156,8 +156,6 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(File(projectDir, "proguard-rules.pro"))
-
-            the<CrashlyticsExtension>().nativeSymbolUploadEnabled = true
         }
 
         getByName("debug") {
