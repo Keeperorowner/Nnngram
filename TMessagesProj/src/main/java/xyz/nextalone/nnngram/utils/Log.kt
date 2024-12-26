@@ -293,7 +293,7 @@ object Log {
         AnalyticsUtils.trackCrashes(throwable)
     }
 
-    private const val ENABLE_NATIVE_LOG = true
+    private const val ENABLE_NATIVE_LOG = false
 
     @JvmStatic
     fun nativeLog(level: Int, tag: String, msg: String) {
