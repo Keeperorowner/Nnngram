@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.telegram.messenger.AndroidUtilities
 import org.telegram.messenger.BuildConfig
+import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.UserConfig
 import org.telegram.ui.LaunchActivity
 import java.io.File
@@ -142,7 +143,7 @@ object Log {
      */
     @JvmStatic
     fun d(tag: String, msg: String) {
-        if (!BuildConfig.ENABLE_LOGGING) return
+        if (!BuildVars.LOGS_ENABLED) return
         if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
         Log.d(TAG, "$tag: $msg")
         writeToFile(Level.DEBUG, tag, msg)
@@ -154,7 +155,7 @@ object Log {
      */
     @JvmStatic
     fun i(tag: String, msg: String) {
-        if (!BuildConfig.ENABLE_LOGGING) return
+        if (!BuildVars.LOGS_ENABLED) return
         Log.i(TAG, "$tag: $msg")
         writeToFile(Level.INFO, tag, msg)
     }
@@ -165,7 +166,7 @@ object Log {
      */
     @JvmStatic
     fun w(tag: String, msg: String) {
-        if (!BuildConfig.ENABLE_LOGGING) return
+        if (!BuildVars.LOGS_ENABLED) return
         Log.w(TAG, "$tag: $msg")
         writeToFile(Level.WARN, tag, msg)
         FirebaseCrashlytics.getInstance().log("$tag: $msg")
@@ -178,7 +179,7 @@ object Log {
     @JvmStatic
     fun e(tag: String, msg: String) {
         Log.e(TAG, "$tag: $msg")
-        if (BuildConfig.LOGS_ENABLED) {
+        if (BuildVars.LOGS_ENABLED) {
         writeToFile(Level.ERROR, tag, msg)
         }
         FirebaseCrashlytics.getInstance().log("$tag: $msg")
@@ -302,7 +303,7 @@ object Log {
 
     @JvmStatic
     fun nativeLog(level: Int, tag: String, msg: String) {
-        if (!BuildConfig.LOGS_ENABLED||!ENABLE_NATIVE_LOG) return
+        if (!BuildVars.LOGS_ENABLED||!ENABLE_NATIVE_LOG) return
         if (tag == "Nnngram") {
             when(level) {
                 0 -> d("tgnet", msg)
