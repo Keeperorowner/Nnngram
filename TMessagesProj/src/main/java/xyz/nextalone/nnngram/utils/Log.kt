@@ -39,16 +39,14 @@ import java.util.Locale
 
 object Log {
     const val TAG = "Nnngram"
-    private val logFile: File? by lazy(LazyThreadSafetyMode.NONE) {
-    if (BuildVars.LOGS_ENABLED) {
-        File(AndroidUtilities.getLogsDir(), "log-${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}").also { f ->
+    private val logFile: File by lazy {
+        File(AndroidUtilities.getLogsDir(), "log-${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.txt").also { f ->
             if (!f.exists()) {
                 f.createNewFile()
                 f.init()
             }
         }
-    } else null
-}
+    }
 
     private fun File.init() {
         appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
@@ -83,9 +81,10 @@ object Log {
                     }
                 }
             }
-            if (BuildVars.LOGS_ENABLED)
+            if (BuildVars.LOGS_ENABLED){
             logFile.appendText(">>>> Log start at ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())}\n", Charset.forName("UTF-8"))
             logFile.appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
+            }
 
 
         }.onFailure {
