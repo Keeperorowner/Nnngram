@@ -193,6 +193,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun d(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (msg.contains("{rc}") && !ENABLE_RC_LOG) return
         Log.d(TAG, msg, throwable)
         writeToFile(Level.DEBUG, null, msg)
@@ -207,6 +208,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun i(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.i(TAG, msg, throwable)
         writeToFile(Level.INFO, null, msg)
         if (throwable != null) writeToFile(Level.INFO, null, throwable.stackTraceToString())
@@ -220,6 +222,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun w(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.w(TAG, msg, throwable)
         writeToFile(Level.WARN, null, msg)
         if (throwable != null) writeToFile(Level.WARN, null, throwable.stackTraceToString())
@@ -233,6 +236,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun e(msg: String, throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.e(TAG, msg, throwable)
         writeToFile(Level.ERROR, null, msg)
         if (throwable != null) {
@@ -243,6 +247,7 @@ object Log {
 
     @JvmStatic
     fun fatal(throwable: Throwable?) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (throwable != null) {
             writeToFile(Level.FATAL, null, throwable.stackTraceToString())
             AnalyticsUtils.trackCrashes(throwable)
@@ -259,6 +264,7 @@ object Log {
     @JvmStatic
     @JvmOverloads
     fun crash(throwable: Throwable? = null) {
+        if (!BuildVars.LOGS_ENABLED) return
         if (throwable != null) {
             throw throwable
         } else {
@@ -282,6 +288,7 @@ object Log {
      */
     @JvmStatic
     fun w(throwable: Throwable) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.w(TAG, "", throwable)
         writeToFile(Level.WARN, null, throwable.stackTraceToString())
         AnalyticsUtils.trackCrashes(throwable)
@@ -294,6 +301,7 @@ object Log {
      */
     @JvmStatic
     fun e(throwable: Throwable) {
+        if (!BuildVars.LOGS_ENABLED) return
         Log.e(TAG, "", throwable)
         writeToFile(Level.ERROR, null, throwable.stackTraceToString())
         AnalyticsUtils.trackCrashes(throwable)
