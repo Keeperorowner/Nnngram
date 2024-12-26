@@ -40,6 +40,7 @@ import java.util.Locale
 object Log {
     const val TAG = "Nnngram"
     private val logFile: File by lazy {
+        if (!BuildVars.LOGS_ENABLED) return
         File(AndroidUtilities.getLogsDir(), "log-${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.txt").also { f ->
             if (!f.exists()) {
                 f.createNewFile()
@@ -94,6 +95,7 @@ object Log {
     }
 
     private fun writeToFile(level: Level, tag: String?, msg: String) {
+        if (!BuildVars.LOGS_ENABLED) return
         CoroutineScope(Dispatchers.IO).launch {
             runCatching {
                 logFile.apply {
