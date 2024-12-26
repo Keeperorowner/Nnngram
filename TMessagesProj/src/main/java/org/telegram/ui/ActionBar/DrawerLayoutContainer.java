@@ -589,37 +589,6 @@ public class DrawerLayoutContainer extends FrameLayout {
                 } else {
                     child.layout(-child.getMeasuredWidth(), lp.topMargin + getPaddingTop(), 0, lp.topMargin + child.getMeasuredHeight() + +getPaddingTop());
                 }
-
-Search within code
- 
-‎TMessagesProj/src/main/java/org/telegram/ui/ActionBar/DrawerLayoutContainer.java
-+5
--13
-Original file line number	Diff line number	Diff line change
-@@ -41,11 +41,11 @@
-import androidx.annotation.Nullable;
-
-import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.BuildVars;
-import org.telegram.messenger.FileLog;
-import org.telegram.messenger.R;
-import org.telegram.messenger.Utilities;
-
-import top.qwq2333.nullgram.utils.Log;
-public class DrawerLayoutContainer extends FrameLayout {
-
-    private static final int MIN_DRAWER_MARGIN = 64;
-@@ -559,22 +559,14 @@
-
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-            if (BuildVars.DEBUG_VERSION) {
-            try {
-                if (drawerLayout != child) {
-                    child.layout(lp.leftMargin, lp.topMargin + getPaddingTop(), lp.leftMargin + child.getMeasuredWidth(), lp.topMargin + child.getMeasuredHeight() + getPaddingTop());
-                } else {
-                    child.layout(-child.getMeasuredWidth(), lp.topMargin + getPaddingTop(), 0, lp.topMargin + child.getMeasuredHeight() + +getPaddingTop());
-                }
             } else {
                 try {
                     if (drawerLayout != child) {
