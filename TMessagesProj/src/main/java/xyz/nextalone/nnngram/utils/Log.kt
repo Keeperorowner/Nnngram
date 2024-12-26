@@ -38,9 +38,9 @@ import java.util.Date
 import java.util.Locale
 
 object Log {
-    if (!BuildVars.LOGS_ENABLED) return
     const val TAG = "Nnngram"
     private val logFile: File by lazy {
+        if (!BuildVars.LOGS_ENABLED) return
         File(AndroidUtilities.getLogsDir(), "log-${SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())}.txt").also { f ->
             if (!f.exists()) {
                 f.createNewFile()
@@ -50,7 +50,6 @@ object Log {
     }
 
     private fun File.init() {
-        if (!BuildVars.LOGS_ENABLED) return
         appendText("Current version: ${BuildConfig.VERSION_NAME}\n")
         appendText("Device Brand: ${Build.BRAND}\n")
         appendText("Device: ${Build.MODEL}\n")
