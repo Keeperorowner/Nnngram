@@ -4159,14 +4159,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     AlertUtil.showToast(LocaleController.getString("TextCopied", R.string.TextCopied));
                     return Unit.INSTANCE;
                 });
-                builder.addItem(LocaleController.getString("DebugClearLogs", R.string.DebugClearLogs), R.drawable.msg_delete, (it) -> {
-                    Log.refreshLog();
-                    return Unit.INSTANCE;
-                });
-                builder.addItem(LocaleController.getString("DebugSendLastLogs", R.string.DebugSendLastLogs), R.drawable.msg_share, (it) -> {
-                    Log.shareLog(getContext());
-                    return Unit.INSTANCE;
-                });
                 builder.addItem(LocaleController.getString("CheckUpdate", R.string.CheckUpdate), R.drawable.msg_search, (it) -> {
                     Browser.openUrl(context, "tg://update");
                     return Unit.INSTANCE;
@@ -12126,10 +12118,6 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         textCell.setTextAndIcon(LocaleController.getString(R.string.PrivacyPolicy), R.drawable.msg2_policy, false);
                     } else if (position == sendLogsRow) {
                         textCell.setText(LocaleController.getString(R.string.DebugSendLogs), true);
-                    } else if (position == sendLastLogsRow) {
-                        textCell.setText(LocaleController.getString(R.string.DebugSendLastLogs), true);
-                    } else if (position == clearLogsRow) {
-                        textCell.setText(LocaleController.getString(R.string.DebugClearLogs), switchBackendRow != -1);
                     } else if (position == switchBackendRow) {
                         textCell.setText("Switch Backend", false);
                     } else if (position == devicesRow) {
